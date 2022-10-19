@@ -22,6 +22,13 @@ var botao;
 var piscando;
 var comendo;
 var triste;
+var musica;
+var cortar;
+var chorando;
+var comer;
+var sopro;
+var balao;
+var bot40;
 
 function preload(){
   fundo = loadImage("./Imagens/background.png");
@@ -30,6 +37,11 @@ function preload(){
   piscando = loadAnimation("./Imagens/blink_1.png","./Imagens/blink_2.png","./Imagens/blink_3.png");
   comendo = loadAnimation("./Imagens/eat_0.png","./Imagens/eat_1.png","./Imagens/eat_2.png","./Imagens/eat_3.png","./Imagens/eat_4.png");
   triste = loadAnimation("./Imagens/sad_1.png","./Imagens/sad_2.png","./Imagens/sad_3.png");
+  musica = loadSound("./Sons/sound1.mp3");
+  cortar = loadSound("./Sons/rope_cut.mp3");
+  chorando = loadSound("./Sons/sad.wav");
+  comer = loadSound("./Sons/eating_sound.mp3");
+  sopro = loadSound("./Sons/air.wav");
 
   piscando.playing = true;
   comendo.playing = true;
@@ -45,6 +57,9 @@ function setup()
   createCanvas(500,700);
   engine = Engine.create();
   world = engine.world;
+
+  musica.play();
+  musica.setVolume(0.5);
  
   rectMode(CENTER);
   ellipseMode(RADIUS);
@@ -63,7 +78,7 @@ function setup()
   ligacao = new Ligacao(corda,melancia);
   
 
-  ricardao = createSprite(250,585,100,100);
+  ricardao = createSprite(400,585,100,100);
   ricardao.addImage(coelho);
   ricardao.scale = 0.3;
   ricardao.addAnimation("piscando", piscando);
@@ -75,6 +90,16 @@ function setup()
   botao.position(220,30);
   botao.size(50,50);
   botao.mouseClicked(quebrar);
+
+  balao = createImg("./Imagens/balloon.png");
+  balao.position(10, 250);
+  balao.size(150, 100);
+  balao.mouseClicked(vento);
+
+  bot40 = createImg("./Imagens/mute.png");
+  bot40.position(450,20);
+  bot40.size(50,50);
+  bot40.mouseClicked(multa);
 }
 
 function draw() 
@@ -90,14 +115,18 @@ function draw()
   }
   if (colidir(melancia, ricardao) === true){
     ricardao.changeAnimation("comendo");
+    comer.play();
   }
   if (melancia!==null && melancia.position.y >= 650){
     ricardao.changeAnimation("triste");
     melancia = null;
+    musica.stop();
+    chorando.play();
   }
 }
 
 function quebrar(){
+  cortar.play();
   corda.break();
   ligacao.quebrar();
   ligacao = null;
@@ -114,5 +143,18 @@ function colidir(corpo, sprite){
     else {
       return false;
     }
+  }
+}
+
+function vento(){
+  Matter.Body.applyForce(melancia, {x:0,y:0}, {x:0.01,y:0});
+  sopro.play();
+}
+
+function multa(){
+  if(musica.isPlaying()){
+    musica.stop();
+  } else {
+    musica.play();
   }
 }
